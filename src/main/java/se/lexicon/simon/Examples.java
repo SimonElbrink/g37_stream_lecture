@@ -2,12 +2,15 @@ package se.lexicon.simon;
 
 import se.lexicon.simon.model.Gender;
 import se.lexicon.simon.model.Person;
+import se.lexicon.simon.model.PersonDTO;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Year;
+import java.util.*;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Examples {
 
@@ -51,6 +54,64 @@ public class Examples {
                 .forEach(System.out::println);
 
     }
+
+    public LocalDate[] getYearOf (int year){
+        return Stream.iterate(LocalDate.ofYearDay(year,1), localDate -> localDate.plusDays(1))
+                .limit(Year.of(year).isLeap() ? 366 : 365)
+
+                // .toArray with Anonymous inner class
+//                .toArray(new IntFunction<LocalDate[]>() {
+//                    @Override
+//                    public LocalDate[] apply(int value) {
+//                        return new LocalDate[value];
+//                    }
+//                });
+
+                //.toArray with Lambda expression
+//                .toArray(value -> new LocalDate[value]);
+
+                // .toArray with Method reference
+                .toArray(LocalDate[]::new);
+    }
+
+    public Map<Month,List<LocalDate>> getYearInMonths(LocalDate...dates){
+       return Stream.of(dates)
+                .collect(Collectors.groupingBy(LocalDate::getMonth));
+
+    }
+
+
+    /**
+     * Finding Person by lastname and map to PersonDTO
+     * @param people
+     * @param lastName
+     * @return
+     */
+    public Collection<PersonDTO> findByLastNameAndConvertToDTO (Collection<Person> people, String lastName){
+
+       return people.stream()
+//               .peek(person -> System.out.println("First Of all: " + person))
+               .filter(person -> person.getLastName().equalsIgnoreCase(lastName)) // Extracting everyone with lastname of param.
+//               .peek(person -> System.out.println("After Filter: " + person))
+               .map(person -> new PersonDTO(person.getId(), person.getFirstName(), person.getLastName()))
+//               .peek(personDto -> System.out.println("After Mapping: " + personDto))
+               .collect(Collectors.toList());
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
